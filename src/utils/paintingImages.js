@@ -1,4 +1,4 @@
-const API_BASE = 'http://localhost:8081';
+const API_BASE = process.env.REACT_APP_API?.replace(/\/+$/, '');
 
 export const getImageUrl = (imageUrl) => {
   if (!imageUrl) return null;

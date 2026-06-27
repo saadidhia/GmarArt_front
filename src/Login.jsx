@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { instance } from './api/axiosInstance';
 import './assets/styles/Login.css';
 
 const AdminLogin = () => {
@@ -23,31 +24,19 @@ const AdminLogin = () => {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:8081/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username: username,
-          password: password,
-        }),
+      const { data } = await instance.post('/api/auth/login', {
+        username: username,
+        password: password,
       });
 
-      const data = await response.json();
+      // Store token and user info
+      localStorage.setItem('authToken', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
 
-      if (response.ok) {
-        // Store token and user info
-        localStorage.setItem('authToken', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
-
-        // Navigate to dashboard
-        navigate('/admin/ferouk/dashboard');
-      } else {
-        setError(data.error || 'Invalid username or password');
-      }
+      // Navigate to dashboard
+      navigate('/admin/ferouk/dashboard');
     } catch (err) {
-      setError('Network error. Please check if the server is running on port 8081.');
+      setError(err.response?.data?.error || 'Invalid username or password');
       console.error('Login error:', err);
     } finally {
       setLoading(false);

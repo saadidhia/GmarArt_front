@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { instance } from './api/axiosInstance';
 import './assets/styles/Dashboard.css';
 
 const AdminDashboard = () => {
@@ -46,9 +47,7 @@ const AdminDashboard = () => {
   const fetchPaintings = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:8081/api/paintings/all');
-      if (!response.ok) throw new Error('Failed to fetch paintings');
-      const data = await response.json();
+      const { data } = await instance.get('/api/paintings/all');
       setPaintings(data);
       setError(null);
     } catch (err) {
@@ -61,11 +60,9 @@ const AdminDashboard = () => {
   // Fetch all orders
   const fetchOrders = async () => {
     try {
-      const response = await fetch('http://localhost:8081/api/orders', {
+      const { data } = await instance.get('/api/orders', {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
       });
-      if (!response.ok) throw new Error('Failed to fetch orders');
-      const data = await response.json();
       setOrders(data);
     } catch (err) {
       console.error('Error fetching orders:', err);
@@ -164,23 +161,19 @@ const AdminDashboard = () => {
         uploadData.append('images', file);
       });
 
-      const endpoint = editingId 
-        ? `http://localhost:8081/api/paintings/${editingId}`
-        : 'http://localhost:8081/api/paintings/upload';
-      
-      const method = editingId ? 'PUT' : 'POST';
+      const endpoint = editingId
+        ? `/api/paintings/${editingId}`
+        : '/api/paintings/upload';
 
-      const response = await fetch(endpoint, {
-        method: method,
-        body: uploadData,
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-        }
-      });
+      const request = editingId
+        ? instance.put(endpoint, uploadData, {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
+          })
+        : instance.post(endpoint, uploadData, {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
+          });
 
-      if (!response.ok) {
-        throw new Error('Failed to save painting');
-      }
+      await request;
 
       setSuccess(editingId ? 'Painting updated successfully!' : 'Painting uploaded successfully!');
 
@@ -238,14 +231,11 @@ const AdminDashboard = () => {
 
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:8081/api/paintings/${id}`, {
-        method: 'DELETE',
+      await instance.delete(`/api/paintings/${id}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('authToken')}`
         }
       });
-
-      if (!response.ok) throw new Error('Failed to delete painting');
 
       setSuccess('Painting deleted successfully!');
       fetchPaintings();

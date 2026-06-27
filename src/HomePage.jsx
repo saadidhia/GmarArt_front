@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { instance } from './api/axiosInstance';
 import { getAllImageUrls, cmToIn } from './utils/paintingImages';
 import SiteHeader from './SiteHeader';
 import SiteFooter from './SiteFooter';
@@ -26,13 +27,8 @@ const HomePage = () => {
   const fetchPaintings = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:8081/api/paintings/all');
+      const { data } = await instance.get('/api/paintings/all');
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch paintings');
-      }
-
-      const data = await response.json();
       console.log('Fetched paintings:', data);
       setPaintings(data);
       setError(null);

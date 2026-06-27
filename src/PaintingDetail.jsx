@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { instance } from './api/axiosInstance';
 import { getAllImageUrls, cmToIn } from './utils/paintingImages';
 import { useCart } from './CartContext';
 import CartIcon from './CartIcon';
@@ -17,9 +18,7 @@ const PaintingDetail = () => {
     const fetchPainting = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`http://localhost:8081/api/paintings/${id}`);
-        if (!response.ok) throw new Error('Painting not found');
-        const data = await response.json();
+        const { data } = await instance.get(`/api/paintings/${id}`);
         setPainting(data);
         setActiveImage(0);
         setError(null);
