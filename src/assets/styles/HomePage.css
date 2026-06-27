@@ -69,11 +69,22 @@ body {
 
 .logo-section {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 15px;
+  gap: 0;
   text-decoration: none;
   color: var(--brown);
   transition: transform 0.3s ease;
+}
+
+.logo-tagline {
+  font-family: 'Sacramento', cursive;
+  font-size: 18px;
+  font-weight: 400;
+  letter-spacing: 1px;
+  color: var(--brown);
+  margin: -4px 0 0;
+  white-space: nowrap;
 }
 
 .logo-section:hover {
@@ -186,6 +197,26 @@ body {
   width: 100%;
 }
 
+.menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  color: var(--brown);
+}
+
+.menu-toggle svg {
+  width: 28px;
+  height: 28px;
+}
+
+.nav-overlay {
+  display: none;
+}
+
 /* ============================================
    HERO SECTION
    ============================================ */
@@ -194,8 +225,8 @@ body {
   background: linear-gradient(135deg, #faf8f5 0%, #f5f0e8 50%, #ede5d8 100%);
   position: relative;
   overflow: hidden;
-  padding: 100px 20px;
-  min-height: 780px;
+  padding: 70px 20px;
+  min-height: 580px;
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -225,7 +256,7 @@ body {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center 25%;
+  object-position: center 12%;
   display: block;
 }
 
@@ -361,7 +392,7 @@ body {
    ============================================ */
 
 .featured {
-  padding: 80px 20px;
+  padding: 40px 20px 80px;
   background-color: var(--white);
 }
 
@@ -575,11 +606,30 @@ body {
 
 .about-text p {
   font-size: 16px;
-  color: var(--gray);
+  color: var(--brown);
   margin-bottom: 20px;
   line-height: 1.8;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   font-weight: 400;
+}
+
+.about-quote {
+  font-size: 15px;
+  font-style: italic;
+  color: var(--brown);
+  line-height: 1.8;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-weight: 400;
+  margin: 30px 0 0;
+  padding-left: 24px;
+  border-left: 3px solid var(--gold);
+}
+
+.about-signature {
+  display: block;
+  height: 26px;
+  width: auto;
+  margin: 16px 24px 0 auto;
 }
 
 .about-image {
@@ -713,14 +763,58 @@ body {
 
 @media (max-width: 768px) {
   .header .container {
-    flex-direction: column;
-    gap: 20px;
+    position: relative;
+  }
+
+  .logo-section {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .menu-toggle {
+    display: flex;
   }
 
   .nav {
-    gap: 20px;
-    flex-wrap: wrap;
-    justify-content: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 280px;
+    max-width: 80%;
+    background: var(--white);
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+    padding: 100px 30px 30px;
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.2);
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: 200;
+  }
+
+  .nav.nav-open {
+    transform: translateX(0);
+  }
+
+  .nav a,
+  .nav-home-icon {
+    width: 100%;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--light-gray);
+  }
+
+  .nav-overlay {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 150;
   }
 
   .hero-title {
@@ -736,8 +830,8 @@ body {
   }
 
   .artwork-grid {
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 25px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
   }
 
   .about-content {
@@ -755,6 +849,10 @@ body {
   .logo-section h1 {
     font-size: 20px;
     letter-spacing: 1px;
+  }
+
+  .logo-tagline {
+    font-size: 15px;
   }
 
   .hero-title {
@@ -779,8 +877,8 @@ body {
   }
 
   .artwork-grid {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 15px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
   }
 
   .artwork-info {
