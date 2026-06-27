@@ -68,7 +68,7 @@ const HomePage = () => {
 
       <section className="featured" id="gallery">
         <div className="container">
-          <h2 className="section-title">Featured Artworks</h2>
+          <h2 className="section-title">Latest Paintings</h2>
 
           {loading && <div className="loading-message"><p>Loading paintings...</p></div>}
           
