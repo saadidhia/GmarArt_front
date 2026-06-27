@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { instance } from './api/axiosInstance';
 import './assets/styles/Dashboard.css';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('upload');
   const [paintings, setPaintings] = useState([]);
+  const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
@@ -15,18 +17,21 @@ const AdminDashboard = () => {
     name: '',
     technique: '',
     year: new Date().getFullYear(),
-    printSize: '',
-    printPrice: '',
-    originalAvailable: true,
-    originalPrice: ''
+    style: '',
+    artist: '',
+    width: '',
+    height: '',
+    depth: '',
+    price: '',
+    description: ''
   });
 
   const [imageFiles, setImageFiles] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
   const [editingId, setEditingId] = useState(null);
 
-  const MAX_IMAGES = 5;
-  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+  const MAX_IMAGES = 7;
+  const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
 
   // Check authentication on mount
   useEffect(() => {
@@ -35,21 +40,32 @@ const AdminDashboard = () => {
       navigate('/admin/ferouk/login');
     }
     fetchPaintings();
+    fetchOrders();
   }, [navigate]);
 
   // Fetch all paintings
   const fetchPaintings = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:8081/api/paintings/all');
-      if (!response.ok) throw new Error('Failed to fetch paintings');
-      const data = await response.json();
+      const { data } = await instance.get('/api/paintings/all');
       setPaintings(data);
       setError(null);
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Fetch all orders
+  const fetchOrders = async () => {
+    try {
+      const { data } = await instance.get('/api/orders', {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
+      });
+      setOrders(data);
+    } catch (err) {
+      console.error('Error fetching orders:', err);
     }
   };
 
@@ -63,49 +79,47 @@ const AdminDashboard = () => {
 
   const handleImageSelect = (e) => {
     const files = Array.from(e.target.files);
-    
+
     // Validate number of images
     if (files.length + imageFiles.length > MAX_IMAGES) {
       setError(`Maximum ${MAX_IMAGES} images allowed`);
+      e.target.value = '';
       return;
     }
 
     // Validate file sizes and types
     const validFiles = files.filter(file => {
-      if (!['image/jpeg', 'image/png', 'image/webp', 'image/gif'].includes(file.type)) {
+      if (!['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'].includes(file.type)) {
         setError(`Invalid file type: ${file.name}. Only JPG, PNG, WEBP, GIF allowed.`);
         return false;
       }
       if (file.size > MAX_FILE_SIZE) {
-        setError(`File too large: ${file.name}. Max 5MB per file.`);
+        setError(`File too large: ${file.name}. Max ${MAX_FILE_SIZE / (1024 * 1024)}MB per file.`);
         return false;
       }
       return true;
     });
 
-    if (validFiles.length === 0) return;
+    if (validFiles.length > 0) {
+      setImageFiles(prev => [...prev, ...validFiles]);
+      setImagePreviews(prev => [...prev, ...validFiles.map(file => URL.createObjectURL(file))]);
+      setError(null);
+    }
 
-    // Add files
-    setImageFiles(prev => [...prev, ...validFiles]);
-
-    // Create previews
-    validFiles.forEach(file => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreviews(prev => [...prev, reader.result]);
-      };
-      reader.readAsDataURL(file);
-    });
-
-    setError(null);
+    // Reset so selecting the same file(s) again later still fires onChange
+    e.target.value = '';
   };
 
   const removeImage = (index) => {
     setImageFiles(prev => prev.filter((_, i) => i !== index));
-    setImagePreviews(prev => prev.filter((_, i) => i !== index));
+    setImagePreviews(prev => {
+      URL.revokeObjectURL(prev[index]);
+      return prev.filter((_, i) => i !== index);
+    });
   };
 
   const removeAllImages = () => {
+    imagePreviews.forEach(URL.revokeObjectURL);
     setImageFiles([]);
     setImagePreviews([]);
   };
@@ -117,7 +131,7 @@ const AdminDashboard = () => {
 
     try {
       // Validate required fields
-      if (!formData.name || !formData.technique || !formData.printSize || !formData.printPrice) {
+      if (!formData.name || !formData.technique || !formData.artist || !formData.width || !formData.height || !formData.price) {
         setError('Please fill in all required fields');
         setLoading(false);
         return;
@@ -134,46 +148,49 @@ const AdminDashboard = () => {
       uploadData.append('name', formData.name);
       uploadData.append('technique', formData.technique);
       uploadData.append('year', formData.year);
-      uploadData.append('printSize', formData.printSize);
-      uploadData.append('printPrice', formData.printPrice);
-      uploadData.append('originalAvailable', formData.originalAvailable);
-      uploadData.append('originalPrice', formData.originalPrice || 0);
+      uploadData.append('style', formData.style);
+      uploadData.append('artist', formData.artist);
+      uploadData.append('width', formData.width);
+      uploadData.append('height', formData.height);
+      uploadData.append('depth', formData.depth || 0);
+      uploadData.append('price', formData.price);
+      uploadData.append('description', formData.description || '');
 
       // Add image files
       imageFiles.forEach((file, index) => {
         uploadData.append('images', file);
       });
 
-      const endpoint = editingId 
-        ? `http://localhost:8081/api/paintings/${editingId}`
-        : 'http://localhost:8081/api/paintings/upload';
-      
-      const method = editingId ? 'PUT' : 'POST';
+      const endpoint = editingId
+        ? `/api/paintings/${editingId}`
+        : '/api/paintings/upload';
 
-      const response = await fetch(endpoint, {
-        method: method,
-        body: uploadData,
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-        }
-      });
+      const request = editingId
+        ? instance.put(endpoint, uploadData, {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
+          })
+        : instance.post(endpoint, uploadData, {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
+          });
 
-      if (!response.ok) {
-        throw new Error('Failed to save painting');
-      }
+      await request;
 
       setSuccess(editingId ? 'Painting updated successfully!' : 'Painting uploaded successfully!');
-      
+
       // Reset form
       setFormData({
         name: '',
         technique: '',
         year: new Date().getFullYear(),
-        printSize: '',
-        printPrice: '',
-        originalAvailable: true,
-        originalPrice: ''
+        style: '',
+        artist: '',
+        width: '',
+        height: '',
+        depth: '',
+        price: '',
+        description: ''
       });
+      imagePreviews.forEach(URL.revokeObjectURL);
       setImageFiles([]);
       setImagePreviews([]);
       setEditingId(null);
@@ -196,10 +213,13 @@ const AdminDashboard = () => {
       name: painting.name,
       technique: painting.technique,
       year: painting.year,
-      printSize: painting.printSize,
-      printPrice: painting.printPrice,
-      originalAvailable: painting.originalAvailable,
-      originalPrice: painting.originalPrice
+      style: painting.style || '',
+      artist: painting.artist || '',
+      width: painting.width,
+      height: painting.height,
+      depth: painting.depth || '',
+      price: painting.price,
+      description: painting.description || ''
     });
     setEditingId(painting.id);
     setActiveTab('upload');
@@ -211,14 +231,11 @@ const AdminDashboard = () => {
 
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:8081/api/paintings/${id}`, {
-        method: 'DELETE',
+      await instance.delete(`/api/paintings/${id}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('authToken')}`
         }
       });
-
-      if (!response.ok) throw new Error('Failed to delete painting');
 
       setSuccess('Painting deleted successfully!');
       fetchPaintings();
@@ -233,7 +250,7 @@ const AdminDashboard = () => {
   const handleLogout = () => {
     localStorage.removeItem('authToken');
     localStorage.removeItem('user');
-   // navigate('/admin/ferouk/login');
+    navigate('/admin/ferouk/login');
   };
 
   return (
@@ -282,6 +299,16 @@ const AdminDashboard = () => {
                 <path d="M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
               </svg>
               Manage Paintings
+            </button>
+            <button
+              className={`nav-item ${activeTab === 'orders' ? 'active' : ''}`}
+              onClick={() => setActiveTab('orders')}
+            >
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M6 7V6C6 3.79086 7.79086 2 10 2H14C16.2091 2 18 3.79086 18 6V7" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                <path d="M4.5 7H19.5L20.5 21H3.5L4.5 7Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              Orders
             </button>
           </nav>
         </div>
@@ -348,13 +375,66 @@ const AdminDashboard = () => {
                       />
                     </div>
                     <div className="form-group">
-                      <label>Print Size *</label>
+                      <label>Artist *</label>
                       <input
                         type="text"
-                        name="printSize"
-                        value={formData.printSize}
+                        name="artist"
+                        value={formData.artist}
                         onChange={handleInputChange}
-                        placeholder="e.g., 24x36"
+                        placeholder="e.g., Ferouk"
+                        disabled={loading}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label>Style</label>
+                      <input
+                        type="text"
+                        name="style"
+                        value={formData.style}
+                        onChange={handleInputChange}
+                        placeholder="e.g., Abstract, Realism"
+                        disabled={loading}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label>Width (cm) *</label>
+                      <input
+                        type="number"
+                        name="width"
+                        value={formData.width}
+                        onChange={handleInputChange}
+                        placeholder="e.g., 60"
+                        step="0.1"
+                        disabled={loading}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Height (cm) *</label>
+                      <input
+                        type="number"
+                        name="height"
+                        value={formData.height}
+                        onChange={handleInputChange}
+                        placeholder="e.g., 90"
+                        step="0.1"
+                        disabled={loading}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Depth (cm)</label>
+                      <input
+                        type="number"
+                        name="depth"
+                        value={formData.depth}
+                        onChange={handleInputChange}
+                        placeholder="e.g., 2"
+                        step="0.1"
                         disabled={loading}
                       />
                     </div>
@@ -364,49 +444,38 @@ const AdminDashboard = () => {
                 {/* Pricing */}
                 <section className="form-section">
                   <h3>Pricing</h3>
-                  
+
                   <div className="form-row">
                     <div className="form-group">
-                      <label>Print Price *</label>
+                      <label>Price *</label>
                       <input
                         type="number"
-                        name="printPrice"
-                        value={formData.printPrice}
+                        name="price"
+                        value={formData.price}
                         onChange={handleInputChange}
                         placeholder="e.g., 50.00"
                         step="0.01"
                         disabled={loading}
                       />
                     </div>
-                    <div className="form-group">
-                      <label>Original Available</label>
-                      <label className="checkbox">
-                        <input
-                          type="checkbox"
-                          name="originalAvailable"
-                          checked={formData.originalAvailable}
-                          onChange={handleInputChange}
-                          disabled={loading}
-                        />
-                        <span>Yes</span>
-                      </label>
-                    </div>
                   </div>
+                </section>
 
-                  {formData.originalAvailable && (
-                    <div className="form-group">
-                      <label>Original Price</label>
-                      <input
-                        type="number"
-                        name="originalPrice"
-                        value={formData.originalPrice}
-                        onChange={handleInputChange}
-                        placeholder="e.g., 5000.00"
-                        step="0.01"
-                        disabled={loading}
-                      />
-                    </div>
-                  )}
+                {/* Description */}
+                <section className="form-section">
+                  <h3>Description</h3>
+
+                  <div className="form-group">
+                    <label>Description</label>
+                    <textarea
+                      name="description"
+                      value={formData.description}
+                      onChange={handleInputChange}
+                      placeholder="Tell buyers about this piece..."
+                      rows={5}
+                      disabled={loading}
+                    />
+                  </div>
                 </section>
 
                 {/* Image Upload */}
@@ -482,11 +551,15 @@ const AdminDashboard = () => {
                           name: '',
                           technique: '',
                           year: new Date().getFullYear(),
-                          printSize: '',
-                          printPrice: '',
-                          originalAvailable: true,
-                          originalPrice: ''
+                          style: '',
+                          artist: '',
+                          width: '',
+                          height: '',
+                          depth: '',
+                          price: '',
+                          description: ''
                         });
+                        imagePreviews.forEach(URL.revokeObjectURL);
                         setImageFiles([]);
                         setImagePreviews([]);
                       }}
@@ -515,10 +588,11 @@ const AdminDashboard = () => {
                     <thead>
                       <tr>
                         <th>Name</th>
+                        <th>Artist</th>
                         <th>Technique</th>
                         <th>Year</th>
-                        <th>Print Price</th>
-                        <th>Original</th>
+                        <th>Size (cm)</th>
+                        <th>Price</th>
                         <th>Actions</th>
                       </tr>
                     </thead>
@@ -526,10 +600,11 @@ const AdminDashboard = () => {
                       {paintings.map(painting => (
                         <tr key={painting.id}>
                           <td>{painting.name}</td>
+                          <td>{painting.artist}</td>
                           <td>{painting.technique}</td>
                           <td>{painting.year}</td>
-                          <td>${painting.printPrice.toFixed(2)}</td>
-                          <td>{painting.originalAvailable ? 'Yes' : 'No'}</td>
+                          <td>{painting.width} x {painting.height}{painting.depth ? ` x ${painting.depth}` : ''}</td>
+                          <td>${painting.price.toFixed(2)}</td>
                           <td className="actions">
                             <button
                               className="btn-edit"
@@ -550,6 +625,47 @@ const AdminDashboard = () => {
                       ))}
                     </tbody>
                   </table>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Orders Tab */}
+          {activeTab === 'orders' && (
+            <div className="tab-content">
+              <h2>Orders</h2>
+
+              {orders.length === 0 ? (
+                <p className="empty">No purchase requests yet.</p>
+              ) : (
+                <div className="orders-list">
+                  {orders.map(order => (
+                    <div key={order.id} className="order-card">
+                      <div className="order-card-header">
+                        <div>
+                          <strong>{order.buyerName}</strong>
+                          <span className="order-email"> · {order.buyerEmail}</span>
+                        </div>
+                        <span className={`order-status order-status-${(order.status || '').toLowerCase()}`}>
+                          {order.status}
+                        </span>
+                      </div>
+                      {order.shippingAddress && (
+                        <p className="order-address">{order.shippingAddress}</p>
+                      )}
+                      <ul className="order-items">
+                        {order.items.map(item => (
+                          <li key={item.id}>
+                            "{item.paintingName}" — ${Number(item.price).toFixed(2)}
+                          </li>
+                        ))}
+                      </ul>
+                      <div className="order-card-footer">
+                        <span>Total: ${Number(order.totalAmount).toFixed(2)}</span>
+                        <span>{new Date(order.createdAt).toLocaleString()}</span>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>

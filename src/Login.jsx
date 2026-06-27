@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './assets/styles/login.css';
+import { instance } from './api/axiosInstance';
+import './assets/styles/Login.css';
 
 const AdminLogin = () => {
   const [username, setUsername] = useState('');
@@ -10,40 +11,32 @@ const AdminLogin = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  // Already logged in? Skip the login form entirely.
+  useEffect(() => {
+    if (localStorage.getItem('authToken')) {
+      navigate('/admin/ferouk/dashboard');
+    }
+  }, [navigate]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:8080/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username: username,
-          password: password,
-        }),
+      const { data } = await instance.post('/api/auth/login', {
+        username: username,
+        password: password,
       });
 
-      const data = await response.json();
+      // Store token and user info
+      localStorage.setItem('authToken', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
 
-      if (response.ok) {
-        // Store token and user info
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify({
-          username: data.username,
-          role: data.role,
-        }));
-        
-        // Navigate to dashboard
-        navigate('/admin/ferouk/dashboard');
-      } else {
-        setError(data.error || 'Invalid username or password');
-      }
+      // Navigate to dashboard
+      navigate('/admin/ferouk/dashboard');
     } catch (err) {
-      setError('Network error. Please check if the server is running on port 8080.');
+      setError(err.response?.data?.error || 'Invalid username or password');
       console.error('Login error:', err);
     } finally {
       setLoading(false);
