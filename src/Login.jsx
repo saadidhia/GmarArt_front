@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './assets/styles/login.css';
 
@@ -10,13 +10,20 @@ const AdminLogin = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  // Already logged in? Skip the login form entirely.
+  useEffect(() => {
+    if (localStorage.getItem('authToken')) {
+      navigate('/admin/ferouk/dashboard');
+    }
+  }, [navigate]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:8080/api/auth/login', {
+      const response = await fetch('http://localhost:8081/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -31,19 +38,16 @@ const AdminLogin = () => {
 
       if (response.ok) {
         // Store token and user info
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify({
-          username: data.username,
-          role: data.role,
-        }));
-        
+        localStorage.setItem('authToken', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+
         // Navigate to dashboard
         navigate('/admin/ferouk/dashboard');
       } else {
         setError(data.error || 'Invalid username or password');
       }
     } catch (err) {
-      setError('Network error. Please check if the server is running on port 8080.');
+      setError('Network error. Please check if the server is running on port 8081.');
       console.error('Login error:', err);
     } finally {
       setLoading(false);
