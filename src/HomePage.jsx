@@ -5,6 +5,7 @@ import { getAllImageUrls, cmToIn } from './utils/paintingImages';
 import SiteHeader from './SiteHeader';
 import SiteFooter from './SiteFooter';
 import heroBackground from './assets/images/hero-background.jpeg';
+import introPhoto from './assets/images/home-about.jpeg';
 import './assets/styles/HomePage.css';
 
 const HomePage = () => {
@@ -122,7 +123,7 @@ const HomePage = () => {
                         </p>
                       )}
                       {painting.price != null && (
-                        <p className="painting-price">${Number(painting.price).toFixed(2)}</p>
+                        <p className="painting-price">€{Number(painting.price).toFixed(2)}</p>
                       )}
                     </div>
                   </Link>
@@ -130,6 +131,31 @@ const HomePage = () => {
               })}
             </div>
           )}
+        </div>
+      </section>
+
+      <section className="intro">
+        <div className="intro-image">
+          <img src={introPhoto} alt="Farouk Gmar holding one of his paintings in his studio" />
+        </div>
+        <div className="container intro-content">
+          <h2 className="intro-title">Hi, I'm Farouk</h2>
+          <div className="intro-text">
+            <p>A part time, and self taught artist.</p>
+            <p>
+              I have been painting since my childhood and I have been doing it professionally since 3 years. My
+              main inspiration is nature and landscapes.
+            </p>
+            <p>
+              What I feel like I do sometimes is something in between Modern art and realism.
+            </p>
+            <p>
+              I paint because I enjoy it, because sometimes it's an escape from life, but most importantly
+              because painting makes me always feel free, and I can reflect my emotions and thoughts into color
+              combinations and brushstrokes.
+            </p>
+            <p>Welcome to my small world and enjoy!</p>
+          </div>
         </div>
       </section>
 

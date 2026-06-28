@@ -19,31 +19,48 @@ export const CartProvider = ({ children }) => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
   }, [items]);
 
-  const isInCart = (paintingId) => items.some((item) => item.paintingId === paintingId);
+  const isInCart = (id) => items.some((item) => item.id === id);
 
-  const addItem = (painting, imageUrl) => {
-    if (isInCart(painting.id)) return;
+  const addItem = (type, entity, imageUrl, quantity = 1) => {
+    if (isInCart(entity.id)) return;
+    const isPrint = type === 'print';
     setItems((prev) => [
       ...prev,
       {
-        paintingId: painting.id,
-        paintingName: painting.name,
-        price: painting.price,
+        id: entity.id,
+        type,
+        name: entity.name,
+        price: entity.price,
         imageUrl: imageUrl || null,
+        quantity: isPrint ? Math.max(1, Math.min(quantity, entity.stock ?? quantity)) : 1,
+        maxStock: isPrint ? entity.stock : undefined,
       },
     ]);
   };
 
-  const removeItem = (paintingId) => {
-    setItems((prev) => prev.filter((item) => item.paintingId !== paintingId));
+  const updateQuantity = (id, quantity) => {
+    setItems((prev) =>
+      prev.map((item) => {
+        if (item.id !== id) return item;
+        const max = item.maxStock ?? Infinity;
+        return { ...item, quantity: Math.max(1, Math.min(quantity, max)) };
+      })
+    );
+  };
+
+  const removeItem = (id) => {
+    setItems((prev) => prev.filter((item) => item.id !== id));
   };
 
   const clearCart = () => setItems([]);
 
-  const total = items.reduce((sum, item) => sum + (Number(item.price) || 0), 0);
+  const itemCount = items.reduce((sum, item) => sum + (item.quantity || 1), 0);
+  const total = items.reduce((sum, item) => sum + (Number(item.price) || 0) * (item.quantity || 1), 0);
 
   return (
-    <CartContext.Provider value={{ items, addItem, removeItem, clearCart, isInCart, total }}>
+    <CartContext.Provider
+      value={{ items, addItem, removeItem, updateQuantity, clearCart, isInCart, total, itemCount }}
+    >
       {children}
     </CartContext.Provider>
   );

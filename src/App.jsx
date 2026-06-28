@@ -4,6 +4,7 @@ import HomePage from './HomePage';
 import Login from './Login';
 import AdminDashboard from './Dashboard';
 import PaintingDetail from './PaintingDetail';
+import PrintDetail from './PrintDetail';
 import CartPage from './CartPage';
 import About from './About';
 import Commission from './Commission';
@@ -20,6 +21,7 @@ function App() {
           <Route path="/about" element={<About />} />
           <Route path="/commission" element={<Commission />} />
           <Route path="/limited-edition-prints" element={<LimitedEditionPrints />} />
+          <Route path="/print/:slug/:id" element={<PrintDetail />} />
           <Route path="/admin/ferouk/login" element={<Login />} />
           <Route path="/admin/ferouk/dashboard" element={<AdminDashboard />} />
           <Route path="/:slug/:id" element={<PaintingDetail />} />
