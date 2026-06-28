@@ -124,6 +124,55 @@
   margin-bottom: 20px;
 }
 
+.detail-quantity {
+  margin-bottom: 16px;
+}
+
+.detail-quantity label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--brown);
+  margin-bottom: 6px;
+}
+
+.detail-quantity-stepper {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--light-gray);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.detail-quantity-stepper button {
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: var(--light-gray);
+  color: var(--brown);
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.detail-quantity-stepper button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.detail-quantity-stepper input {
+  width: 50px;
+  height: 36px;
+  border: none;
+  border-left: 1px solid var(--light-gray);
+  border-right: 1px solid var(--light-gray);
+  text-align: center;
+  font-size: 14px;
+}
+
+.detail-quantity-stepper input:focus {
+  outline: none;
+}
+
 .detail-add-to-cart {
   display: block;
   width: 100%;
@@ -200,6 +249,19 @@
 
 .detail-facts strong {
   color: var(--brown);
+}
+
+.detail-print-info-title {
+  margin-top: 16px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--gray);
+}
+
+.detail-print-info {
+  font-size: 14px;
+  color: var(--gray);
+  line-height: 1.6;
 }
 
 @media (max-width: 768px) {

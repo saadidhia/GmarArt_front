@@ -91,14 +91,14 @@ const PaintingDetail = () => {
           </h1>
 
           {painting.price != null && (
-            <p className="detail-price">${Number(painting.price).toFixed(2)}</p>
+            <p className="detail-price">€{Number(painting.price).toFixed(2)}</p>
           )}
           <p className="detail-shipping">Worldwide shipping is free</p>
 
           <button
             type="button"
             className={`detail-add-to-cart ${inCart ? 'in-cart' : ''}`}
-            onClick={() => addItem(painting, images[0])}
+            onClick={() => addItem('painting', painting, images[0])}
             disabled={inCart}
           >
             {inCart ? '✓ Added to Cart' : 'Add to Cart'}

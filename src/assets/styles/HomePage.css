@@ -426,6 +426,12 @@ body {
   font-weight: 400;
 }
 
+.prints-subtitle {
+  color: var(--gray);
+  font-size: 15px;
+  text-align: left;
+}
+
 /* ============================================
    ARTWORK GRID
    ============================================ */
@@ -653,6 +659,58 @@ body {
 }
 
 /* ============================================
+   INTRO SECTION (HOME PAGE)
+   ============================================ */
+
+.intro {
+  padding: 0 0 80px;
+  background: linear-gradient(135deg, var(--white) 0%, #faf8f5 100%);
+}
+
+.intro-image {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 50px;
+}
+
+.intro-image img {
+  width: 100%;
+  max-width: 380px;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  object-position: 62% center;
+  display: block;
+  border-radius: 12px;
+  box-shadow: var(--shadow-hover);
+}
+
+.intro-content {
+  text-align: center;
+  max-width: 720px;
+}
+
+.intro-title {
+  font-size: 34px;
+  color: var(--brown);
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.intro-text p {
+  font-size: 16px;
+  color: var(--brown);
+  margin-bottom: 8px;
+  line-height: 1.5;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-weight: 400;
+  overflow-wrap: break-word;
+}
+
+.intro-text p:last-child {
+  margin-bottom: 0;
+}
+
+/* ============================================
    FOOTER
    ============================================ */
 
@@ -827,6 +885,10 @@ body {
 
   .section-title {
     font-size: 36px;
+  }
+
+  .intro-title {
+    font-size: 28px;
   }
 
   .artwork-grid {
