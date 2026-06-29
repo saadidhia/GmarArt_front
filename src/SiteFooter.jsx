@@ -23,24 +23,21 @@ const SiteFooter = () => {
           <div className="footer-section">
             <h4>Contact</h4>
             <ul>
-              <li>Email: info@feroukart.com</li>
-              <li>Phone: +1 (555) 123-4567</li>
+              <li>Email: contact@gmarart.com</li>
+              <li>Phone: +49 1517 0419399</li>
               <li>Address: 123 Art Street, NY</li>
             </ul>
           </div>
           <div className="footer-section">
             <h4>Social Media</h4>
             <div className="social-links">
-              <a href="#" aria-label="Instagram">📷</a>
-              <a href="#" aria-label="Facebook">📘</a>
-              <a href="#" aria-label="Twitter">🐦</a>
-              <a href="#" aria-label="Pinterest">📌</a>
+              <a href="https://www.instagram.com/ferouk_gmar/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">📷</a>
+              <a href="https://www.facebook.com/farouk.gmar" target="_blank" rel="noopener noreferrer" aria-label="Facebook">📘</a>
             </div>
           </div>
         </div>
         <div className="footer-bottom">
-          <p>© 2024 FeroukArt Gallery. All rights reserved.</p>
-          <Link to="/admin/ferouk/login" className="admin-link">Admin</Link>
+          <p>© 2026 Gm'ar,t Gallery. All rights reserved.</p>
         </div>
       </div>
     </footer>

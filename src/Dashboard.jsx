@@ -9,6 +9,7 @@ const AdminDashboard = () => {
   const [paintings, setPaintings] = useState([]);
   const [prints, setPrints] = useState([]);
   const [orders, setOrders] = useState([]);
+  const [commissions, setCommissions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
@@ -56,6 +57,7 @@ const AdminDashboard = () => {
     fetchPaintings();
     fetchPrints();
     fetchOrders();
+    fetchCommissions();
   }, [navigate]);
 
   // Fetch all paintings
@@ -95,6 +97,18 @@ const AdminDashboard = () => {
       setOrders(data);
     } catch (err) {
       console.error('Error fetching orders:', err);
+    }
+  };
+
+  // Fetch all commission requests
+  const fetchCommissions = async () => {
+    try {
+      const { data } = await instance.get('/api/commissions', {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
+      });
+      setCommissions(data);
+    } catch (err) {
+      console.error('Error fetching commission requests:', err);
     }
   };
 
@@ -506,6 +520,18 @@ const AdminDashboard = () => {
                 <path d="M4.5 7H19.5L20.5 21H3.5L4.5 7Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
               Orders
+            </button>
+            <button
+              className={`nav-item ${activeTab === 'commissions' ? 'active' : ''}`}
+              onClick={() => setActiveTab('commissions')}
+            >
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 19L19 12L22 15L15 22L12 19Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M18 13L16.5 5.5L2 2L5.5 16.5L13 18L18 13Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M2 2L9.586 9.586" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                <circle cx="11" cy="11" r="1" fill="currentColor"/>
+              </svg>
+              Commissions
             </button>
           </nav>
         </div>
@@ -1082,6 +1108,58 @@ const AdminDashboard = () => {
                       <div className="order-card-footer">
                         <span>Total: €{Number(order.totalAmount).toFixed(2)}</span>
                         <span>{new Date(order.createdAt).toLocaleString()}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Commissions Tab */}
+          {activeTab === 'commissions' && (
+            <div className="tab-content">
+              <h2>Commission Requests</h2>
+
+              {commissions.length === 0 ? (
+                <p className="empty">No commission requests yet.</p>
+              ) : (
+                <div className="orders-list">
+                  {commissions.map(req => (
+                    <div key={req.id} className="order-card">
+                      <div className="order-card-header">
+                        <div>
+                          <strong>{req.fullName}</strong>
+                          <span className="order-email"> · {req.email} · {req.phone}</span>
+                        </div>
+                        <span className={`order-status order-status-${(req.status || '').toLowerCase()}`}>
+                          {req.status}
+                        </span>
+                      </div>
+                      <p className="order-address">
+                        {[
+                          [req.street, req.houseNumber].filter(Boolean).join(' '),
+                          req.city,
+                          req.country,
+                        ].filter(Boolean).join(', ')}
+                      </p>
+                      <ul className="order-items">
+                        <li><strong>Size:</strong> {req.desiredSize}</li>
+                        <li><strong>Style:</strong> {req.style}</li>
+                        <li><strong>Subject:</strong> {req.subject}</li>
+                        {req.description && <li><strong>Description:</strong> {req.description}</li>}
+                      </ul>
+                      {req.allImageUrls?.length > 0 && (
+                        <div className="commission-reference-images">
+                          {req.allImageUrls.map((url) => (
+                            <a key={url} href={url} target="_blank" rel="noopener noreferrer">
+                              <img src={url} alt="Reference" />
+                            </a>
+                          ))}
+                        </div>
+                      )}
+                      <div className="order-card-footer">
+                        <span>{new Date(req.createdAt).toLocaleString()}</span>
                       </div>
                     </div>
                   ))}

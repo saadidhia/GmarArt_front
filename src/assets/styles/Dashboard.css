@@ -614,6 +614,20 @@ body {
   padding-top: 10px;
 }
 
+.commission-reference-images {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.commission-reference-images img {
+  width: 70px;
+  height: 70px;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
