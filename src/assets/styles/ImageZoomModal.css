@@ -1,0 +1,135 @@
+.zoom-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.9);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.zoom-modal-content {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.zoom-modal-image-wrap {
+  width: min(90vw, 1100px);
+  height: 85vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  cursor: zoom-in;
+}
+
+.zoom-modal-image-wrap.zoomed {
+  cursor: grab;
+}
+
+.zoom-modal-image-wrap img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  transition: transform 0.15s ease-out;
+  user-select: none;
+}
+
+.zoom-modal-image-wrap.zoomed img {
+  transition: none;
+}
+
+.zoom-modal-close {
+  position: absolute;
+  top: 16px;
+  right: 20px;
+  background: transparent;
+  border: none;
+  color: var(--white, #fff);
+  font-size: 36px;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.zoom-modal-close:hover {
+  color: var(--gold, #d4af37);
+}
+
+.zoom-modal-controls {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+  z-index: 2;
+}
+
+.zoom-modal-controls button {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: var(--white, #fff);
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.zoom-modal-controls button:hover:not(:disabled) {
+  background: var(--gold, #d4af37);
+  border-color: var(--gold, #d4af37);
+  color: var(--brown, #2b1c12);
+}
+
+.zoom-modal-controls button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.zoom-modal-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: var(--white, #fff);
+  border-radius: 50%;
+  width: 46px;
+  height: 46px;
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.zoom-modal-nav:hover {
+  background: var(--gold, #d4af37);
+  border-color: var(--gold, #d4af37);
+  color: var(--brown, #2b1c12);
+}
+
+.zoom-modal-prev {
+  left: 16px;
+}
+
+.zoom-modal-next {
+  right: 16px;
+}
+
+@media (max-width: 600px) {
+  .zoom-modal-image-wrap {
+    width: 95vw;
+    height: 70vh;
+  }
+
+  .zoom-modal-nav {
+    width: 38px;
+    height: 38px;
+    font-size: 20px;
+  }
+}
