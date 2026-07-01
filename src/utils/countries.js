@@ -4,5 +4,7 @@ export const COUNTRIES = [
   'Italy', 'Latvia', 'Liechtenstein', 'Lithuania', 'Luxembourg', 'Malta', 'Monaco',
   'Netherlands', 'Norway', 'Poland', 'Portugal', 'Romania', 'Slovakia', 'Slovenia',
   'Spain', 'Sweden', 'Switzerland', 'United Kingdom',
-  'United States', 'Canada', 'Australia', 'New Zealand', 'Japan', 'Other',
+  'United States', 'Canada', 'Australia', 'New Zealand', 'Japan',
+  'Bahrain', 'Kuwait', 'Qatar', 'Saudi Arabia', 'South Africa', 'Turkey', 'United Arab Emirates',
+  'Other',
 ];
