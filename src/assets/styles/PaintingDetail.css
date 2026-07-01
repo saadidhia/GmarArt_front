@@ -48,6 +48,7 @@
   overflow: hidden;
   background: var(--light-gray);
   box-shadow: var(--shadow);
+  cursor: zoom-in;
 }
 
 .detail-main-image img {

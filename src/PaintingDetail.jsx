@@ -4,6 +4,7 @@ import { instance } from './api/axiosInstance';
 import { getAllImageUrls, cmToIn } from './utils/paintingImages';
 import { useCart } from './CartContext';
 import CartIcon from './CartIcon';
+import ImageZoomModal from './ImageZoomModal';
 import './assets/styles/PaintingDetail.css';
 
 const PaintingDetail = () => {
@@ -13,6 +14,7 @@ const PaintingDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeImage, setActiveImage] = useState(0);
+  const [zoomOpen, setZoomOpen] = useState(false);
 
   useEffect(() => {
     const fetchPainting = async () => {
@@ -60,13 +62,27 @@ const PaintingDetail = () => {
 
       <div className="detail-container">
         <div className="detail-gallery">
-          <div className="detail-main-image">
+          <div
+            className="detail-main-image"
+            onClick={() => images.length > 0 && setZoomOpen(true)}
+            role={images.length > 0 ? 'button' : undefined}
+            tabIndex={images.length > 0 ? 0 : undefined}
+          >
             {images.length > 0 ? (
               <img src={images[activeImage]} alt={painting.name || 'Artwork'} />
             ) : (
               <div className="detail-image-placeholder">No image available</div>
             )}
           </div>
+
+          {zoomOpen && (
+            <ImageZoomModal
+              images={images}
+              startIndex={activeImage}
+              alt={painting.name || 'Artwork'}
+              onClose={() => setZoomOpen(false)}
+            />
+          )}
 
           {images.length > 1 && (
             <div className="detail-thumbnails">
